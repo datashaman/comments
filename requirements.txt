@@ -1,0 +1,7 @@
+factory_boy
+flask
+flask-marshmallow
+flask-sqlalchemy
+marshmallow-sqlalchemy
+python-dotenv
+sqlalchemy-utils
