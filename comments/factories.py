@@ -1,7 +1,6 @@
 import factory
 
-from comments.models import Site, User, Topic, Comment
-from comments.services import db
+from comments.models import db, Site, User, Topic, Comment
 from factory.alchemy import SESSION_PERSISTENCE_COMMIT
 
 class SiteFactory(factory.alchemy.SQLAlchemyModelFactory):

@@ -1,50 +1,45 @@
-from comments.models import Site, User, Topic, Comment
-from comments.services import ma
+import marshmallow as ma
 
-from marshmallow import fields, validate
-from marshmallow_sqlalchemy import auto_field
+class CommentSchema(ma.Schema):
+    id = ma.fields.Integer()
+    uuid = ma.fields.UUID(dump_only=True)
+    topic_id = ma.fields.Integer(required=True)
+    parent_id = ma.fields.Integer()
+    user_id = ma.fields.Integer(required=True)
+    text = ma.fields.String(required=True, validate=ma.validate.Length(min=1))
+    status = ma.fields.String(dump_only=True)
+    created_at = ma.fields.DateTime(dump_only=True)
+    updated_at = ma.fields.DateTime(dump_only=True)
 
-class CommentSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Comment
+class UserSchema(ma.Schema):
+    id = ma.fields.Integer()
+    uuid = ma.fields.UUID(dump_only=True)
+    site_id = ma.fields.Integer(required=True)
+    username = ma.fields.String(required=True, validate=ma.validate.Length(min=6))
+    email = ma.fields.Email()
+    url = ma.fields.URL()
+    created_at = ma.fields.DateTime(dump_only=True)
+    updated_at = ma.fields.DateTime(dump_only=True)
 
-    text = auto_field(validate=validate.Length(min=1))
+    comments = ma.fields.List(ma.fields.Nested(CommentSchema))
 
-class UserSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = User
+class TopicSchema(ma.Schema):
+    id = ma.fields.Integer()
+    uuid = ma.fields.UUID(dump_only=True)
+    site_id = ma.fields.Integer(required=True)
+    url = ma.fields.URL(required=True)
+    created_at = ma.fields.DateTime(dump_only=True)
+    updated_at = ma.fields.DateTime(dump_only=True)
 
-    username = auto_field(validate=validate.Length(min=6))
-    email = auto_field(validate=validate.Email())
-    url = auto_field(validate=validate.URL(relative=False, require_tld=True))
+    comments = ma.fields.List(ma.fields.Nested(CommentSchema))
 
-    comments = fields.List(fields.Nested(CommentSchema))
+class SiteSchema(ma.Schema):
+    id = ma.fields.Integer()
+    uuid = ma.fields.UUID(dump_only=True)
+    url = ma.fields.URL(required=True)
+    origins = ma.fields.List(ma.fields.URL(required=True))
+    created_at = ma.fields.DateTime(dump_only=True)
+    updated_at = ma.fields.DateTime(dump_only=True)
 
-    _links = ma.Hyperlinks({
-        'self': ma.AbsoluteURLFor('user', id='<id>'),
-    })
-
-class TopicSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Topic
-
-    _links = ma.Hyperlinks({
-        'self': ma.AbsoluteURLFor('topic', id='<id>'),
-    })
-
-    comments = fields.List(fields.Nested(CommentSchema))
-
-class SiteSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Site
-        include_fk = True
-
-    url = auto_field(validate=validate.URL(relative=False, require_tld=True))
-
-    _links = ma.Hyperlinks({
-        'self': ma.AbsoluteURLFor('site', id='<id>'),
-        'collection': ma.AbsoluteURLFor('sites'),
-    })
-
-    topics = fields.List(fields.Nested(TopicSchema))
-    users = fields.List(fields.Nested(UserSchema))
+    topics = ma.fields.List(ma.fields.Nested(TopicSchema))
+    users = ma.fields.List(ma.fields.Nested(UserSchema))

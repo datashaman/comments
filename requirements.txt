@@ -1,7 +1,6 @@
 factory_boy
-flask
-flask-marshmallow
-flask-sqlalchemy
-marshmallow-sqlalchemy
+flask-resty
+pytest
 python-dotenv
 sqlalchemy-utils
+httpie
